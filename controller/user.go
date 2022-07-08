@@ -31,7 +31,7 @@ func (uh *UserHandler) Create(c echo.Context) error {
 	}
 
 	if err = c.Validate(u); err != nil {
-
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return nil
