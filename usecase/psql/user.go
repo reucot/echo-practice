@@ -21,7 +21,7 @@ func (ur UserRepo) Insert(ctx context.Context, u *entity.User) error {
 	INSERT INTO users
 	VALUES (DEFAULT, $1, $2, $3, $4)`
 
-	_, err := ur.Pool.Exec(ctx, q, u.FirstName, u.SecondName, u.DateOfBirth, u.IncomePerYear)
+	_, err := ur.Pool.Exec(ctx, q, u.FirstName, u.SecondName, u.DateOfBirth.Time.Format("2006-02-01"), u.IncomePerYear.Icy)
 
 	//TODO: Add internal server error
 	if err != nil {
@@ -36,7 +36,7 @@ func (ur UserRepo) Get(ctx context.Context) (*entity.User, error) {
 }
 
 func (ur UserRepo) GetAll(ctx context.Context, fu *entity.FilterUser) ([]entity.User, error) {
-	us := make([]entity.User, 10)
+	var us []entity.User
 
 	q := `
 	SELECT
@@ -44,6 +44,13 @@ func (ur UserRepo) GetAll(ctx context.Context, fu *entity.FilterUser) ([]entity.
 	FROM
 	users
 	`
+
+	filterStr := fu.Filter()
+
+	if len(filterStr) > 0 {
+		q += `WHERE ` + filterStr
+	}
+
 	rows, err := ur.Pool.Query(ctx, q)
 
 	if err != nil {
@@ -53,11 +60,13 @@ func (ur UserRepo) GetAll(ctx context.Context, fu *entity.FilterUser) ([]entity.
 	for rows.Next() {
 		u := new(entity.User)
 
-		err = rows.Scan(&u.Id, &u.FirstName, &u.SecondName, &u.IncomePerYear, &u.DateOfBirth)
+		err = rows.Scan(&u.Id, &u.FirstName, &u.SecondName, &u.DateOfBirth.Time, &u.IncomePerYear.Icy)
 
 		if err != nil {
 			return nil, fmt.Errorf("psql - user - GetAll - rows.Scan: %w", err)
 		}
+
+		us = append(us, *u)
 	}
 
 	return us, nil

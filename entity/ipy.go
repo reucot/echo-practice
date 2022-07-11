@@ -11,8 +11,14 @@ type IncomePerYear struct {
 }
 
 func (icy IncomePerYear) MarshalJSON() ([]byte, error) {
-	icyStr := fmt.Sprintf(`"%d.%d"`, icy.Icy/100, icy.Icy%100)
-	return []byte(icyStr), nil
+	n1 := icy.Icy / 100
+	n2 := icy.Icy % 100
+
+	if n2 >= 0 && n2 <= 9 {
+		return []byte(fmt.Sprintf(`"%d.0%d"`, n1, n2)), nil
+	}
+
+	return []byte(fmt.Sprintf(`"%d.%d"`, n1, n2)), nil
 }
 
 //Можно было через регулярное выражение, но как тогда описывать ошибки?

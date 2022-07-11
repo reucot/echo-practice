@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
+
 	"echo-practice/controller"
 	"echo-practice/pkg/logger"
 	"echo-practice/pkg/postgres"
-	"echo-practice/pkg/validator"
 	"echo-practice/usecase"
 	"echo-practice/usecase/psql"
-	"fmt"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,7 +22,7 @@ func main() {
 	defer pg.Close()
 
 	e := echo.New()
-	e.Validator = validator.NewValidator()
+	//e.Validator = validator.NewValidator()
 
 	controller.NewUser(e, usecase.NewUserUseCase(psql.NewUserRepo(pg)))
 

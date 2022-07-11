@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -33,7 +34,12 @@ func (uh *UserHandler) Create(c echo.Context) error {
 	err = uh.UserUC.Create(c.Request().Context(), &u)
 
 	if err != nil {
-		ErrorResponse(c, http.StatusInternalServerError, err)
+		if errors.Is(err, entity.ErrInternalService) {
+			ErrorResponse(c, http.StatusInternalServerError, err)
+		}
+		ErrorResponse(c, http.StatusBadRequest, err)
+
+		return nil
 	}
 
 	SuccessResponse(c, nil)
@@ -53,7 +59,12 @@ func (uh *UserHandler) GetAll(c echo.Context) error {
 	us, err = uh.UserUC.GetAll(c.Request().Context(), &fu)
 
 	if err != nil {
-		ErrorResponse(c, http.StatusInternalServerError, err)
+		if errors.Is(err, entity.ErrInternalService) {
+			ErrorResponse(c, http.StatusInternalServerError, err)
+		}
+		ErrorResponse(c, http.StatusBadRequest, err)
+
+		return nil
 	}
 
 	SuccessResponse(c, us)
