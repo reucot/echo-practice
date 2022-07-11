@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/go-playground/validator"
 )
@@ -11,29 +11,19 @@ type CustomValidator struct {
 }
 
 func NewValidator() *CustomValidator {
-	return &CustomValidator{
+	cv := &CustomValidator{
 		v: *validator.New(),
 	}
+
+	return cv
 }
 
 func (cv *CustomValidator) Validate(i interface{}) error {
+	fmt.Println("Validate")
 	if err := cv.v.Struct(i); err != nil {
 		//validationErrors := err.(validator.ValidationErrors)
 		return err
 	}
 
-	cv.v.RegisterValidation("income_per_year", IncomePerYear)
-
 	return nil
-}
-
-func IncomePerYear(fl validator.FieldLevel) bool {
-	icyStr := fl.Field().String()
-
-	if icy, err := strconv.ParseFloat(icyStr, 2); err != nil {
-		fl.Field().SetInt(int64(icy * 100))
-		return true
-	}
-
-	return false
 }
